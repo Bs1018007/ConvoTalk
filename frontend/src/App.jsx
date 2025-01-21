@@ -7,7 +7,7 @@ import SettingsPage from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
-import { axiosInstance } from "../lib/axios";
+
 import { AuthStore } from "./store/AuthStore";
 import { useEffect } from "react";
 import {Loader} from "lucide-react";

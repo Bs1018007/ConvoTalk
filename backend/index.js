@@ -1,5 +1,5 @@
 import express from "express";
-import MongoDB from "./lib/db.js"
+import { MongoDB } from "./lib/db.js"
 import dotenv from "dotenv";
 import Cookieparser from "cookie-parser"
 import AuthRoutes from "./Routes/AuthRoutes.js"
@@ -12,13 +12,16 @@ dotenv.config();
 const app = express();
 
 const port = process.env.Port;
+app.use(express.json());
+app.use(Cookieparser());
+
+
 
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true,
 }));
-app.use(express.json());
-app.use(Cookieparser());
+
 
 app.use("/api/auth",AuthRoutes);
 app.use("/api/message",MessageRoutes);
