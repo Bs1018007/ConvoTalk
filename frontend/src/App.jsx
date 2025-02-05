@@ -9,12 +9,14 @@ import ProfilePage from "./pages/ProfilePage";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import { AuthStore } from "./store/AuthStore";
+import { ThemeStore } from "./store/ThemeStore";
 import { useEffect } from "react";
 import {Loader} from "lucide-react";
 
 
 const App = () => {
   const {authUser, checkAuth,isCheckingAuth } = AuthStore();
+  const {theme} = ThemeStore();
   
   useEffect(() => {
     checkAuth();
@@ -31,7 +33,7 @@ const App = () => {
   )
 
   return (
-    <div>
+    <div data-theme={theme}>
       <Routes>
         <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} /> 
         <Route path="/signup" element={!authUser ?  <SignUpPage /> : <Navigate to="/" />} />
@@ -40,6 +42,7 @@ const App = () => {
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
       </Routes>
     </div>
+
   );
 };
 export default App;
