@@ -25,6 +25,10 @@ const Navbar = () => {
             </Link>
             {authUser && (
               <>
+                <Link to={"/"} className={`btn btn-sm gap-2`}>
+                  <User className="size-5" />
+                  <span className="hidden sm:inline">Home</span>
+                </Link>
                 <Link to={"/profile"} className={`btn btn-sm gap-2`}>
                   <User className="size-5" />
                   <span className="hidden sm:inline">Profile</span>
