@@ -6,12 +6,15 @@ import AuthRoutes from "./Routes/AuthRoutes.js"
 import MessageRoutes from "./Routes/MessageRoutes.js"
 
 import cors from "cors"
+import {app,server} from "./lib/socket.js"
+
+
 
 dotenv.config();
 
-const app = express();
-
 const port = process.env.Port;
+
+
 app.use(express.json({limit: '10mb'}));
 app.use(Cookieparser());
 
@@ -28,8 +31,7 @@ app.use("/api/message",MessageRoutes);
 
 
 
-
-app.listen(port, ()=> {
+server.listen(port, ()=> {
     console.log(`Server is running on port ${port}`);
     MongoDB();
 });

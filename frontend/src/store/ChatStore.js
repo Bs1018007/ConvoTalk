@@ -14,7 +14,7 @@ export const ChatStore = create((set) =>({
         set ({ isUserLoading:true});
         try {
           const res = await axiosInstance.get("/message/users");
-          set({ authUser: res.data });
+          set({ users: res.data });
         } catch (error) {
           toast.error(error.response.data.message || "Something went wrong");
         } finally {

@@ -1,6 +1,5 @@
-import React from 'react'
-import { AuthStore } from '../store/AuthStore';
 import { Link } from 'react-router-dom';
+import { AuthStore } from '../store/AuthStore';
 import { LogOut, MessageSquare, Settings, User } from 'lucide-react';
 
 const Navbar = () => {
@@ -19,7 +18,7 @@ const Navbar = () => {
             </Link>
           </div>
           <div className='flex items-center gap-4'>
-            <Link to='/settings' className='btn btn-sm gap-2 transition-colors'>
+            <Link to={"/settings"} className={`btn btn-sm gap-2 transition-colors`}>
               <Settings className='w-5 h-5' />
               <span className='hidden sm:inline'>Settings</span>
             </Link>

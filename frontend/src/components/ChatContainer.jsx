@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
-
+import MessageSkeleton from "./ss/MessageSkeleton";
 import { AuthStore } from "../store/AuthStore";
 import { formatMessageTime } from "../../lib/util";
 
@@ -19,8 +19,7 @@ const ChatContainer = () => {
 
   useEffect(() => {
     getMessages(selectedUser._id);
-
-  }, [selectedUser._id, getMessages]);
+    }, [selectedUser,getMessages]);
 
   useEffect(() => {
     if (messageEndRef.current && messages) {
@@ -32,8 +31,8 @@ const ChatContainer = () => {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
-
-        <MessageInput />
+        <MessageInput/>
+        <MessageSkeleton />
       </div>
     );
   }
@@ -79,8 +78,7 @@ const ChatContainer = () => {
           </div>
         ))}
       </div>
-
-      <MessageInput />
+      <MessageInput/>
     </div>
   );
 };
