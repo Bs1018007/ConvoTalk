@@ -8,6 +8,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:5173"],
+    credentials: true,
   },
 });
 
@@ -16,7 +17,7 @@ export function getReceiverSocketId(userId) {
 }
 
 // used to store online users
-const userSocketMap = {}; // {userId: socketId}
+const userSocketMap = {}; 
 
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
