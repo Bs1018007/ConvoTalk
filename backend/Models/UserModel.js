@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    googleId: {
+      type: String, // Store Google's unique user ID
+      default: null, // Will be null for non-Google users
+    },
     email: {
       type: String,
       required: true,
@@ -13,8 +17,8 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       minlength: 6,
+      default: null, 
     },
     profilePic: {
       type: String,
