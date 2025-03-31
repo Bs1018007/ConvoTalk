@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema(
   {
     googleId: {
-      type: String, // Store Google's unique user ID
-      default: null, // Will be null for non-Google users
+      type: String, 
+      default: null,
     },
     email: {
       type: String,

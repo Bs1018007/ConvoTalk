@@ -4,19 +4,20 @@ import dotenv from "dotenv";
 import Cookieparser from "cookie-parser";
 import AuthRoutes from "./Routes/AuthRoutes.js";
 import MessageRoutes from "./Routes/MessageRoutes.js";
-import path from "path";
 import cors from "cors";
 import { app, server } from "./lib/socket.js";
 import session from "express-session";
 import passport from "passport";
 import "./lib/passport.js"; 
 import GoogleAuthRoutes from "./Routes/GoogleAuthRoutes.js"; 
+import path from "path";
+
+const __dirname = path.resolve();
 
 dotenv.config();
 
 
 const port = process.env.Port || 3000;
-const __dirname = path.resolve();
 
 app.use(express.json({ limit: "10mb" }));
 app.use(Cookieparser());
@@ -40,15 +41,16 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 app.use("/api/auth", AuthRoutes);
 app.use("/api/message", MessageRoutes);
 app.use("/auth", GoogleAuthRoutes); 
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend")));
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "index.html"));
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
   });
 }
 

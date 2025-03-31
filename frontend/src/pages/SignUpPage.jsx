@@ -33,7 +33,7 @@ const SignUpPage = () => {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="relative flex items-center justify-center bg-gradient-to-r from-red-500 to-purple-500 text-white">
+      <div className="relative flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white">
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="z-10 flex flex-col items-center text-center px-6 space-y-6">
           <MessageSquare className="w-12 h-12 text-primary" />
@@ -57,17 +57,18 @@ const SignUpPage = () => {
             <div className="flex flex-col items-center gap-2">
               <MessageSquare className="w-10 h-10 text-primary" />
               <h1 className="text-2xl font-bold">Create Account</h1>
-              <p className="text-gray-600">Get started with your free account</p>
+              <p className="text-gray-600">Get started with your account</p>
             </div>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Full Name</label>
+              <label className="block text-gray-700 font-medium mb-2">FullName</label>
               <div className="relative">
                 <User className="absolute left-3 top-3 text-gray-400" />
                 <input
                   type="text"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400"
+                  placeholder="John Doe"
                   value={formData.fullName}
                   onChange={(e) =>
                     setFormData({ ...formData, fullName: e.target.value })
@@ -82,6 +83,7 @@ const SignUpPage = () => {
                 <input
                   type="email"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400"
+                  placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
@@ -96,6 +98,7 @@ const SignUpPage = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-400"
+                  placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
