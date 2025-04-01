@@ -15,12 +15,14 @@ export default defineConfig({
     }
   },
   server: {
+    host: '0.0.0.0',  // Expose to all network interfaces
     port: 5173,
+    strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://backend:3000', // Use Docker service name instead of localhost
         changeOrigin: true
       }
     }
   }
-})
+});
