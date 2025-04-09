@@ -23,9 +23,16 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       proxy: {
         '/api': {
-          target: env.VITE_API_BASE_URL || 'http://backend:3000',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
+          target: process.env.NODE_ENV === 'production' 
+            ? '/' 
+            : 'http://localhost:3000',
+          changeOrigin: true
+        },
+        '/auth': {
+          target: process.env.NODE_ENV === 'production'
+            ? '/'
+            : 'http://localhost:3000',
+          changeOrigin: true
         }
       }
     },
