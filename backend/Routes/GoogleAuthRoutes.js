@@ -3,25 +3,19 @@ import passport from "passport";
 import { generateToken } from "../lib/jwtokens.js"; 
 
 const router = express.Router();
-const FRONTEND_URL = process.env.NODE_ENV === "production" 
-  ? "https://your-railway-app-url.railway.app" 
-  : "http://localhost:5173";
 
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
+
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: `${FRONTEND_URL}/login` }),
+  passport.authenticate("google", { failureRedirect: "http://localhost:5173/login" }),
   (req, res) => {
     if (!req.user) {
-      return res.redirect(`${FRONTEND_URL}/login`);
+      return res.redirect("http://localhost:5173/login");
     }
-    
-    // Generate JWT token and set it in a cookie
     const token = generateToken(req.user._id, res);
-    
-    // Redirect to frontend with token
-    res.redirect(`${FRONTEND_URL}?token=${token}`);
+    res.redirect(`http://localhost:5173?token=${token}`);
   }
 );
 
@@ -44,7 +38,7 @@ router.get("/logout", (req, res) => {
     res.clearCookie(cookie);
   }
   
-  res.redirect(`${FRONTEND_URL}/login`);
+  res.redirect("http://localhost:5173/login");
 });
 
 router.get("/user", (req, res) => {

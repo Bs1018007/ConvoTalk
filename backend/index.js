@@ -16,19 +16,17 @@ const __dirname = path.resolve();
 
 dotenv.config();
 
-const port = process.env.PORT || 3000;
-const FRONTEND_URL = process.env.NODE_ENV === "production" 
-  ? "https://convotalk-production.up.railway.app" 
-  : "http://localhost:5173";
 
-// Middleware
+const port = process.env.Port || 3000;
+
 app.use(express.json({ limit: "10mb" }));
 app.use(Cookieparser());
 
 app.use(
   cors({
-    origin: FRONTEND_URL,
-    methods: "GET,POST,PUT,DELETE",
+    origin: "http://localhost:5173",
+
+    methods:"GET,POST,PUT,DELETE",
     credentials: true,
   })
 );
@@ -38,33 +36,27 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
-    }
   })
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// API Routes
+
 app.use("/api/auth", AuthRoutes);
 app.use("/api/message", MessageRoutes);
-app.use("/auth", GoogleAuthRoutes);
+app.use("/auth", GoogleAuthRoutes); 
 
-// Serve frontend in production
 if (process.env.NODE_ENV === "production") {
-  // Serve static files
-  app.use(express.static(path.join(__dirname, "frontend", "dist")));
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  // Handle all other routes by serving the index.html
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
   });
 }
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
   MongoDB();
+
 });
