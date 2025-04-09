@@ -3,7 +3,7 @@ import { axiosInstance } from "../../lib/axios.js";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : "/";
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : window.location.origin;
 
 export const AuthStore = create((set, get) => ({
   authUser: null,
@@ -16,7 +16,7 @@ export const AuthStore = create((set, get) => ({
 
   checkAuth: async () => {
     try {
-      const res = await axiosInstance.get("/auth/user");
+      const res = await axiosInstance.get("/api/auth/check");
       if (res.data) {
         set({ authUser: res.data });
         get().connectSocket();
@@ -60,7 +60,10 @@ export const AuthStore = create((set, get) => ({
   },
 
   loginWithGoogle: () => {
-    window.location.href = "http://localhost:3000/auth/google";
+    const redirectUrl = import.meta.env.MODE === "development" 
+      ? "http://localhost:3000/auth/google"
+      : `${window.location.origin}/auth/google`;
+    window.location.href = redirectUrl;
   },
 
   logout: async () => {
@@ -77,8 +80,8 @@ export const AuthStore = create((set, get) => ({
         document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
       });
       
-      // Redirect to Google OAuth logout
-      window.location.href = "http://localhost:3000/auth/logout";
+      // Redirect to home
+      window.location.href = "/login";
       
       toast.success("Logged out successfully");
     } catch (error) {

@@ -19,7 +19,7 @@ dotenv.config();
 
 const port = process.env.PORT || 3000;
 const FRONTEND_URL = process.env.NODE_ENV === "production" 
-  ? process.env.RAILWAY_STATIC_URL 
+  ? process.env.RENDER_EXTERNAL_URL || "*"
   : "http://localhost:5173";
 
 app.use(express.json({ limit: "10mb" }));
@@ -45,7 +45,8 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : undefined
     }
   })
 );
@@ -58,11 +59,10 @@ app.use("/api/message", MessageRoutes);
 app.use("/auth", GoogleAuthRoutes); 
 
 if (process.env.NODE_ENV === "production") {
-  const frontendBuildPath = path.join(__dirname, "..", "frontend", "dist");
-  app.use(express.static(frontendBuildPath));
+  app.use(express.static(path.join(__dirname, "frontend", "dist")));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(frontendBuildPath, "index.html"));
+    res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
   });
 }
 
