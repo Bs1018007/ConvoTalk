@@ -4,24 +4,32 @@ import { generateToken } from "../lib/jwtokens.js";
 
 const router = express.Router();
 
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+const CLIENT_URL = process.env.NODE_ENV === "production"
+  ? "https://convotalk-1.onrender.com"
+  : "http://localhost:5173";
 
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "http://localhost:5173/login" }),
+  passport.authenticate("google", { failureRedirect: `${CLIENT_URL}/login` }),
   (req, res) => {
     if (!req.user) {
-      return res.redirect("http://localhost:5173/login");
+      return res.redirect(`${CLIENT_URL}/login`);
     }
     const token = generateToken(req.user._id, res);
-    res.redirect(`http://localhost:5173?token=${token}`);
+    res.redirect(`${CLIENT_URL}?token=${token}`);
   }
 );
 
 router.get("/logout", (req, res) => {
   // Clear JWT cookie
-  res.clearCookie("jwt");
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : undefined
+  });
   
   // Clear session
   if (req.session) {
@@ -32,18 +40,22 @@ router.get("/logout", (req, res) => {
     });
   }
   
-  // Clear all cookies
+  // Clear all cookies with proper options
   const cookies = req.cookies;
   for (let cookie in cookies) {
-    res.clearCookie(cookie);
+    res.clearCookie(cookie, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : undefined
+    });
   }
   
-  res.redirect("http://localhost:5173/login");
+  res.redirect(`${CLIENT_URL}/login`);
 });
 
 router.get("/user", (req, res) => {
   if (!req.user) return res.status(401).json({ message: "Not Authenticated" });
-
   res.json(req.user || null);
 });
 

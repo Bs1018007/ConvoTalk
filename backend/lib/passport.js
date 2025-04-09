@@ -5,12 +5,17 @@ import User from "../Models/UserModel.js";
 
 dotenv.config();
 
+const CALLBACK_URL = process.env.NODE_ENV === "production"
+  ? "https://convotalk-1.onrender.com/auth/google/callback"
+  : "/auth/google/callback";
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.Client_ID,
       clientSecret: process.env.Client_Secret,
-      callbackURL: "/auth/google/callback",
+      callbackURL: CALLBACK_URL,
+      proxy: true
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
