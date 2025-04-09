@@ -60,25 +60,27 @@ export const AuthStore = create((set, get) => ({
   },
 
   loginWithGoogle: () => {
-    window.open("http://localhost:3000/auth/google", "_self");
-
-    window.addEventListener("load", () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const token = urlParams.get("token");
-
-      if (token) {
-        document.cookie = `jwt=${token}; path=/;`;
-        AuthStore().checkAuth(); 
-      }
-    });
+    window.location.href = "http://localhost:3000/auth/google";
   },
 
   logout: async () => {
     try {
+      // Clear JWT token
       await axiosInstance.post("/api/auth/logout");
+      
+      // Clear local state
       set({ authUser: null });
-      toast.success("Logged out successfully");
       get().disconnectSocket();
+      
+      // Clear any remaining cookies
+      document.cookie.split(";").forEach(function(c) { 
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+      });
+      
+      // Redirect to Google OAuth logout
+      window.location.href = "http://localhost:3000/auth/logout";
+      
+      toast.success("Logged out successfully");
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
     }
