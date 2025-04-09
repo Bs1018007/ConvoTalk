@@ -18,16 +18,16 @@ const __dirname = path.resolve();
 dotenv.config();
 
 const port = process.env.PORT || 3000;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = process.env.NODE_ENV === "production" 
+  ? process.env.RAILWAY_STATIC_URL 
+  : "http://localhost:5173";
 
 app.use(express.json({ limit: "10mb" }));
 app.use(Cookieparser());
 
 app.use(
   cors({
-    origin: process.env.NODE_ENV === "production" 
-      ? FRONTEND_URL
-      : "http://localhost:5173",
+    origin: FRONTEND_URL,
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })
@@ -44,7 +44,6 @@ app.use(
     }),
     cookie: {
       secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     }
@@ -59,10 +58,11 @@ app.use("/api/message", MessageRoutes);
 app.use("/auth", GoogleAuthRoutes); 
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "frontend", "dist")));
+  const frontendBuildPath = path.join(__dirname, "..", "frontend", "dist");
+  app.use(express.static(frontendBuildPath));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+    res.sendFile(path.join(frontendBuildPath, "index.html"));
   });
 }
 
