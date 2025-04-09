@@ -5,9 +5,10 @@ import User from "../Models/UserModel.js";
 
 dotenv.config();
 
+// Make sure this exact URL is added in Google Cloud Console
 const CALLBACK_URL = process.env.NODE_ENV === "production"
   ? "https://convotalk-1.onrender.com/auth/google/callback"
-  : "/auth/google/callback";
+  : "http://localhost:3000/auth/google/callback";
 
 passport.use(
   new GoogleStrategy(
