@@ -7,7 +7,7 @@ import { Users } from "lucide-react";
 const Sidebar = () => {
   const {
     getUsers,
-    users = [], // ensure it's always an array
+    users = [], 
     selectedUser,
     setSelectedUser,
     isUsersLoading,
@@ -17,7 +17,7 @@ const Sidebar = () => {
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {
-    getUsers?.(); // safely call if it exists
+    getUsers?.();
   }, [getUsers]);
 
   const filteredUsers = showOnlineOnly

@@ -18,10 +18,20 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    audio: {
+      type: String,
+    },
+    deletedBy: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+    },
+    isDeletedForEveryone: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
 
 const Message = mongoose.model("Message", messageSchema);
-
 export default Message;

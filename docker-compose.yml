@@ -27,6 +27,12 @@ services:
     environment:
       - NODE_ENV=production
       - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - Client_ID=${Client_ID}
+      - Client_Secret=${Client_Secret}
+      - COOKIE_DOMAIN=${COOKIE_DOMAIN}
+      - RENDER_EXTERNAL_URL=${RENDER_EXTERNAL_URL}
     depends_on:
       - mongodb
     networks:
@@ -42,7 +48,8 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_BASE_URL=http://localhost:3000
+      - NODE_ENV=production
+      - VITE_API_BASE_URL=http://54-234-229-97.nip.io:3000
     depends_on:
       - backend
     networks:

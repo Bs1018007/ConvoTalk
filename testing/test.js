@@ -8,9 +8,9 @@ async function testSignup() {
 
     await driver.wait(until.elementLocated(By.css("input[placeholder='John Doe']")), 5000);
 
-    await driver.findElement(By.css("input[placeholder='John Doe']")).sendKeys("User 7");
-    await driver.findElement(By.css("input[placeholder='you@example.com']")).sendKeys("User7@example.com222");
-    await driver.findElement(By.css("input[type='password']")).sendKeys("test1123441443", Key.RETURN);
+    await driver.findElement(By.css("input[placeholder='John Doe']")).sendKeys("User 8");
+    await driver.findElement(By.css("input[placeholder='you@example.com']")).sendKeys("User8@example.com222");
+    await driver.findElement(By.css("input[type='password']")).sendKeys("ttest12345", Key.RETURN);
 
     const w = await driver.wait(until.urlContains("/"), 3000);
     if (w){

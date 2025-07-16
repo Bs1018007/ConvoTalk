@@ -1,131 +1,124 @@
-import { useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ChatStore } from "../store/ChatStore";
-import { Image, Send, Smile, X } from "lucide-react"; 
-import toast from "react-hot-toast";
-import EmojiPicker from "emoji-picker-react"; 
+import { AuthStore } from "../store/AuthStore";
+import { ImageIcon, Mic, Send, StopCircle, Smile } from "lucide-react";
+import EmojiPicker from "emoji-picker-react";
 
 const MessageInput = () => {
+  const { selectedUser, sendMessage } = ChatStore();
+  const { authUser } = AuthStore();
   const [text, setText] = useState("");
-  const [imagePreview, setImagePreview] = useState(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false); 
+  const [image, setImage] = useState(null);
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const audioChunks = useRef([]);
   const fileInputRef = useRef(null);
-  const { sendMessage } = ChatStore();
 
-  const handleImageChange = (e) => {
+  const handleSend = async () => {
+    if (!text && !image) return;
+    await sendMessage({ text, image });
+    setText("");
+    setImage(null);
+    setShowEmojiPicker(false);
+  };
+
+  const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-
+    if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
     reader.readAsDataURL(file);
+    reader.onloadend = () => setImage(reader.result);
   };
 
-  const removeImage = () => {
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const recorder = new MediaRecorder(stream);
+    audioChunks.current = [];
+
+    recorder.ondataavailable = (e) => {
+      audioChunks.current.push(e.data);
+    };
+
+    recorder.onstop = async () => {
+      const blob = new Blob(audioChunks.current, { type: 'audio/webm' });
+      const base64Audio = await blobToBase64(blob);
+      await sendMessage({ audio: base64Audio });
+    };
+
+    recorder.start();
+    setMediaRecorder(recorder);
+    setIsRecording(true);
   };
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!text.trim() && !imagePreview) return;
-
-    try {
-      await sendMessage({
-        text: text.trim(),
-        image: imagePreview,
-      });
-
-      setText("");
-      setImagePreview(null);
-      setShowEmojiPicker(false); 
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (error) {
-      console.error("Failed to send message:", error);
-    }
+  const stopRecording = () => {
+    mediaRecorder.stop();
+    setIsRecording(false);
   };
 
-  const handleEmojiClick = (emojiObject) => {
-    setText((prevText) => prevText + emojiObject.emoji); 
+  const blobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   };
+
+  const onEmojiClick = (emojiData) => {
+    setText(prev => prev + emojiData.emoji);
+  };
+
+  if (!selectedUser) return null;
 
   return (
-    <div className="p-4 w-full relative">
-      {imagePreview && (
-        <div className="mb-3 flex items-center gap-2">
-          <div className="relative">
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
-            />
-            <button
-              onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center"
-              type="button"
-            >
-              <X className="size-3" />
-            </button>
-          </div>
+    <div className="border-t p-4 relative">
+      {showEmojiPicker && (
+        <div className="absolute bottom-16 left-4 z-50">
+          <EmojiPicker onEmojiClick={onEmojiClick} height={350} />
         </div>
       )}
 
-      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-        <div className="flex-1 flex gap-2 relative">
- 
-          <input
-            type="text"
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md"
-            placeholder="Type a message..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
+      <div className="flex items-center gap-2">
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+          hidden
+        />
 
-          {showEmojiPicker && (
-            <div className="absolute bottom-12 right-10">
-              <EmojiPicker onEmojiClick={handleEmojiClick} />
-            </div>
-          )}
+        <input
+          type="text"
+          placeholder="Type your message..."
+          className="input input-bordered flex-1"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
 
-          <button
-            type="button"
-            className="btn btn-circle text-zinc-400"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          >
-            <Smile size={20} />
-          </button>
-
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-          />
-
-          <button
-            type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Image size={20} />
-          </button>
-        </div>
-
-        <button
-          type="submit"
-          className="btn btn-sm btn-circle"
-          disabled={!text.trim() && !imagePreview}
-        >
-          <Send size={22} />
+        <button onClick={handleSend} className="btn btn-circle">
+          <Send size={20} />
         </button>
-      </form>
+
+        <button onClick={() => setShowEmojiPicker((prev) => !prev)} className="btn btn-circle">
+          <Smile size={20} />
+        </button>
+
+        <button onClick={() => fileInputRef.current.click()} className="btn btn-circle">
+          <ImageIcon size={20} />
+        </button>
+
+        {!isRecording ? (
+          <button onClick={startRecording} className="btn btn-circle" title="Start Recording">
+            <Mic size={20} />
+          </button>
+        ) : (
+          <button onClick={stopRecording} className="btn btn-circle btn-error" title="Stop Recording">
+            <StopCircle size={20} />
+          </button>
+        )}
+      </div>
     </div>
   );
 };

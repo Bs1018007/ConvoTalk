@@ -21,7 +21,6 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-
       <div className="relative flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white">
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="z-10 flex flex-col items-center text-center px-6 space-y-6">

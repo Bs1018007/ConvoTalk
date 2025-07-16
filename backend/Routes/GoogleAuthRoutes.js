@@ -5,18 +5,18 @@ import { generateToken } from "../lib/jwtokens.js";
 const router = express.Router();
 
 const CLIENT_URL = process.env.NODE_ENV === "production"
-  ? "https://convotalk-1.onrender.com"
+  ? process.env.EXTERNAL_URL
   : "http://localhost:5173";
 
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: `${CLIENT_URL}/login` }),
+  passport.authenticate("google", {
+    failureRedirect: "/login",
+    session: false,
+  }),
   (req, res) => {
-    if (!req.user) {
-      return res.redirect(`${CLIENT_URL}/login`);
-    }
     const token = generateToken(req.user._id, res);
     res.redirect(`${CLIENT_URL}?token=${token}`);
   }
@@ -31,7 +31,6 @@ router.get("/logout", (req, res) => {
     domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : undefined
   });
   
-  // Clear session
   if (req.session) {
     req.session.destroy((err) => {
       if (err) {
@@ -39,8 +38,7 @@ router.get("/logout", (req, res) => {
       }
     });
   }
-  
-  // Clear all cookies with proper options
+
   const cookies = req.cookies;
   for (let cookie in cookies) {
     res.clearCookie(cookie, {
