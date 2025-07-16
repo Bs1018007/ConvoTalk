@@ -5,13 +5,9 @@ import express from "express";
 const app = express();
 const server = http.createServer(app);
 
-const allowedOrigins = process.env.NODE_ENV === "production"
-  ? ["https://convotalk-frontend.onrender.com"] 
-  : ["http://localhost:5173"];
-
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: ["http://localhost:5173"],
     credentials: true,
   },
 });

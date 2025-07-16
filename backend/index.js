@@ -59,7 +59,6 @@ app.use("/api/message", MessageRoutes);
 app.use("/auth", GoogleAuthRoutes); 
 
 if (process.env.NODE_ENV === "production") {
-  // In production, serve files from the dist directory in the project root
   const frontendPath = path.join(__dirname, "..", "dist");
   console.log("Serving static files from:", frontendPath);
   app.use(express.static(frontendPath));

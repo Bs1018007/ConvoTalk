@@ -68,19 +68,15 @@ export const AuthStore = create((set, get) => ({
 
   logout: async () => {
     try {
-      // Clear JWT token
       await axiosInstance.post("/api/auth/logout");
       
-      // Clear local state
       set({ authUser: null });
       get().disconnectSocket();
-      
-      // Clear any remaining cookies
+   
       document.cookie.split(";").forEach(function(c) { 
         document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
       });
       
-      // Redirect to home
       window.location.href = "/login";
       
       toast.success("Logged out successfully");
