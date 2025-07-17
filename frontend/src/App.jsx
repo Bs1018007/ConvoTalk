@@ -17,7 +17,7 @@ const App = () => {
   const location = useLocation();
 
 
-  const protectedRoutes = ["/", "/settings", "/profile"];
+  const protectedRoutes = ["/","/profile"];
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
