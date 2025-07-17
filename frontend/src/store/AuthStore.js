@@ -24,12 +24,18 @@ export const AuthStore = create((set, get) => ({
         set({ authUser: null });
       }
     } catch (error) {
-      console.log("Error in checkAuth:", error);
+      if (error.response?.status === 401) {
+        // No need to log 401 on first load
+        console.log("No auth token found, user not logged in.");
+      } else {
+        console.error("Unexpected error in checkAuth:", error);
+      }
       set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
     }
   },
+  
 
   signup: async (data) => {
     set({ isSigningUp: true });
