@@ -85,7 +85,7 @@ export const deleteMessage = async (req, res) => {
     message.text = "";
     message.image = "";
     message.audio = "";
-    message.isDeletedForEveryone = true;
+    message.isDeletedForEveryone = true; 
     await message.save();
 
     const receiverSocketId = getReceiverSocketId(message.receiverId.toString());

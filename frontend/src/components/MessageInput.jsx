@@ -9,7 +9,6 @@ const MessageInput = () => {
   const { authUser } = AuthStore();
   const [text, setText] = useState("");
   const [image, setImage] = useState(null);
-
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -22,6 +21,13 @@ const MessageInput = () => {
     setText("");
     setImage(null);
     setShowEmojiPicker(false);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   const handleImageUpload = (e) => {
@@ -95,6 +101,7 @@ const MessageInput = () => {
           className="input input-bordered flex-1"
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyPress}
         />
 
         <button onClick={handleSend} className="btn btn-circle">

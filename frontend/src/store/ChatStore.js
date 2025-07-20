@@ -13,7 +13,7 @@ export const ChatStore = create((set, get) => ({
   getUsers: async () => {
     set({ isUserLoading: true });
     try {
-      const res = await axiosInstance.get("api/message/users");
+      const res = await axiosInstance.get("/api/message/users");
       set({ users: res.data });
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
@@ -25,7 +25,7 @@ export const ChatStore = create((set, get) => ({
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
     try {
-      const res = await axiosInstance.get(`api/message/${userId}`);
+      const res = await axiosInstance.get(`/api/message/${userId}`);
       set({ messages: res.data });
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
@@ -37,10 +37,10 @@ export const ChatStore = create((set, get) => ({
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
     try {
-      const res = await axiosInstance.post(`api/message/send/${selectedUser._id}`, messageData);
+      const res = await axiosInstance.post(`/api/message/send/${selectedUser._id}`, messageData);
       set({ messages: [...messages, res.data] });
     } catch (error) {
-      toast.error(error.response?.data?.message);
+      toast.error(error.response?.data?.message || "Sending failed");
     }
   },
 
@@ -60,7 +60,16 @@ export const ChatStore = create((set, get) => ({
       await axiosInstance.delete(`/api/message/${messageId}`);
       set((state) => ({
         messages: state.messages.map((msg) =>
-          msg._id === messageId ? { ...msg, text: "", image: "", isDeletedForEveryone: true } : msg
+          msg._id === messageId
+            ? {
+                ...msg,
+                text: "",
+                image: "",
+                audio: "",
+                isDeletedForEveryone: true,
+                deletedAt: new Date().toISOString(),
+              }
+            : msg
         ),
       }));
     } catch (error) {
@@ -70,19 +79,44 @@ export const ChatStore = create((set, get) => ({
 
   subscribeToMessages: () => {
     const { selectedUser } = get();
-    if (!selectedUser) return;
-
     const socket = AuthStore.getState().socket;
-    socket.on("newMessage", (newMessage) => {
-      const isMessageFromSelectedUser = newMessage.senderId === selectedUser._id;
-      if (!isMessageFromSelectedUser) return;
-      set({ messages: [...get().messages, newMessage] });
+    if (!selectedUser || !socket) return;
+
+    socket.off("getMessage");
+
+    socket.on("getMessage", (newMessage) => {
+      const isRelevant = newMessage.senderId === selectedUser._id;
+      if (isRelevant) {
+        set((state) => ({
+          messages: [...state.messages, newMessage],
+        }));
+      }
+    });
+
+    socket.on("messageDeletedForEveryone", (deletedMessageId) => {
+      set((state) => ({
+        messages: state.messages.map((msg) =>
+          msg._id === deletedMessageId
+            ? {
+                ...msg,
+                text: "",
+                image: "",
+                audio: "",
+                isDeletedForEveryone: true,
+                deletedAt: new Date().toISOString(),
+              }
+            : msg
+        ),
+      }));
     });
   },
 
   unsubscribeFromMessages: () => {
     const socket = AuthStore.getState().socket;
-    socket.off("newMessage");
+    if (socket) {
+      socket.off("getMessage");
+      socket.off("messageDeletedForEveryone");
+    }
   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
