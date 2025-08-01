@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 export const sendNotificationMail = async (to, subject, text) => {
   try {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error("Email credentials not configured. EMAIL_USER and EMAIL_PASS environment variables are required.");
+      console.error("Email credentials not configured.");
       return false;
     }
 
