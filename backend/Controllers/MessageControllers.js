@@ -2,6 +2,7 @@ import User from "../Models/UserModel.js";
 import Message from "../Models/MessageModel.js";
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
+import { sendNotificationMail } from "../lib/mailer.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -48,10 +49,11 @@ export const sendMessage = async (req, res) => {
     let audioUrl = null;
     if (audio) {
       const uploadRes = await cloudinary.uploader.upload(audio, {
-        resource_type: "video", 
+        resource_type: "video",
       });
       audioUrl = uploadRes.secure_url;
     }
+
 
     const newMessage = await Message.create({
       senderId,
@@ -62,10 +64,25 @@ export const sendMessage = async (req, res) => {
     });
 
     const receiverSocketId = getReceiverSocketId(receiverId);
+
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("getMessage", newMessage);
-    }
+    } else {
+      const receiverUser = await User.findById(receiverId);
+      const senderUser = await User.findById(senderId);
 
+      if (receiverUser?.email) {
+        try {
+          await sendNotificationMail(
+            receiverUser.email,
+            "📩 New message on ConvoTalk",
+            `${senderUser.fullName} sent you a message.Open ConvoTalk https://convotalk-1.onrender.com/ to check it out.`
+          );
+        } catch (mailErr) {
+          console.error("Email sending failed:", mailErr.message);
+        }
+      }
+    }
     res.status(201).json(newMessage);
   } catch (error) {
     console.error("SendMessage Error:", error.message);
@@ -85,7 +102,7 @@ export const deleteMessage = async (req, res) => {
     message.text = "";
     message.image = "";
     message.audio = "";
-    message.isDeletedForEveryone = true; 
+    message.isDeletedForEveryone = true;
     await message.save();
 
     const receiverSocketId = getReceiverSocketId(message.receiverId.toString());
