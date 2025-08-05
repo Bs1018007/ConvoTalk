@@ -3,7 +3,7 @@ import { ThemeStore } from "../store/ThemeStore";
 
 const SettingsPage = () => {
   const { theme, setTheme } = ThemeStore();
-
+  
   return (
     <div className="h-screen container mx-auto px-4 pt-20 max-w-5xl">
       <div className="space-y-6">

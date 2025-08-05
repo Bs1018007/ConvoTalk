@@ -2,6 +2,7 @@ import { generateToken } from "../lib/jwtokens.js";
 import User from "../Models/UserModel.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
+import Message from "../Models/MessageModel.js";
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -103,6 +104,27 @@ export const updateProfile = async (req, res) => {
   } catch (error) {
     console.log("error in update profile:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // 1. Delete the user
+    await User.findByIdAndDelete(userId);
+
+    // 2. Delete messages where the user is sender or receiver
+    await Message.deleteMany({
+      $or: [{ sender: userId }, { receiver: userId }],
+    });
+
+    // 3. Clear JWT cookie
+    res.cookie("jwt", "", { maxAge: 0 });
+
+    res.status(200).json({ message: "Account and messages deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting account:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
